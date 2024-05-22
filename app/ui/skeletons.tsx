@@ -5,7 +5,7 @@ const shimmer =
 export function NavLinkSkeleton() {
   return (
     <div
-      className={`relative flex h-[48px] grow items-center justify-center gap-2 overflow-hidden rounded-md bg-gray-100 p-3 text-sm font-medium md:flex-none md:justify-start md:p-2 md:px-3 ${shimmer}`}
+      className={`relative flex h-[48px] grow items-center justify-center gap-2 overflow-hidden rounded-md bg-gray-100 dark:bg-black p-3 text-sm font-medium md:flex-none md:justify-start md:p-2 md:px-3 ${shimmer}`}
     >
       <div className="h-6 w-6 rounded-full bg-gray-200" />
       <p className="hidden h-5 w-20 rounded-md bg-gray-200 md:block" />
