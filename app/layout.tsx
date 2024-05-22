@@ -26,11 +26,9 @@ export default function RootLayout({
         className={`${poppins.className} antialiased dark:bg-[#606060] dark:bg-opacity-20`}
       >
         <ThemeProvider>
-          <SessionProvider>
             <Toaster position="bottom-right" />
             {children}
             {/* <footer className='py-10 flex justify-center items-center'>Nomina Dashboard by ❤️ Gethy</footer> */}
-          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
