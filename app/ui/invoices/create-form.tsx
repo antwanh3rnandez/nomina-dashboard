@@ -11,6 +11,7 @@ import {
 import { Button } from '@/app/ui/button';
 import { createInvoice } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
+import toast from 'react-hot-toast';
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
 
@@ -18,7 +19,21 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
   const [state, dispatch] = useFormState(createInvoice, initialState);
  
   return (
-    <form action={dispatch}>
+    <form 
+      action={
+        async (formData: FormData) => {
+          //reset form
+          //validate form
+          
+          const result: any = await dispatch(formData);
+          if (result?.message) {
+            toast.error(result.message);
+          }else{
+            toast.success('Invoice created successfully');
+          }
+        }
+      }
+    >
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -32,7 +47,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue=""
               aria-describedby="customer-error"
-              
+              required
             >
               <option value="" disabled>
                 Select a customer
@@ -70,6 +85,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 placeholder="Enter USD amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 aria-describedby="amount-error"
+                required
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
@@ -99,6 +115,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                   value="pending"
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                   aria-describedby="status-error"
+                  required
                 />
                 <label
                   htmlFor="pending"

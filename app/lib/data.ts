@@ -7,10 +7,15 @@ import {
   LatestInvoiceRaw,
   User,
   Revenue,
+  CustomerForm,
+  UsersTableType,
+  UsersField,
 } from './definitions';
 import { formatCurrency } from './utils';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export async function fetchRevenue() {
+  noStore();
   // Add noStore() here to prevent the response from being cached.
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
 
@@ -33,6 +38,7 @@ export async function fetchRevenue() {
 }
 
 export async function fetchLatestInvoices() {
+  noStore();
   try {
     const data = await sql<LatestInvoiceRaw>`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
@@ -145,6 +151,7 @@ export async function fetchInvoicesPages(query: string) {
 }
 
 export async function fetchInvoiceById(id: string) {
+  noStore();
   try {
     const data = await sql<InvoiceForm>`
       SELECT
@@ -187,7 +194,13 @@ export async function fetchCustomers() {
   }
 }
 
-export async function fetchFilteredCustomers(query: string) {
+const ITEMS_PER_PAGE_CUSTOMERS = 6;
+export async function fetchFilteredCustomers(
+  query: string,
+  currentPage: number,
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE_CUSTOMERS;
+
   try {
     const data = await sql<CustomersTableType>`
 		SELECT
@@ -205,6 +218,7 @@ export async function fetchFilteredCustomers(query: string) {
         customers.email ILIKE ${`%${query}%`}
 		GROUP BY customers.id, customers.name, customers.email, customers.image_url
 		ORDER BY customers.name ASC
+    LIMIT ${ITEMS_PER_PAGE_CUSTOMERS} OFFSET ${offset}
 	  `;
 
     const customers = data.rows.map((customer) => ({
@@ -220,12 +234,148 @@ export async function fetchFilteredCustomers(query: string) {
   }
 }
 
+export async function fetchCustomersPages(query: string) {
+  try {
+    const count = await sql`
+      SELECT COUNT(*)
+      FROM customers
+      WHERE
+        name ILIKE ${`%${query}%`} OR
+        email ILIKE ${`%${query}%`}
+    `;
+
+    const totalPages = Math.ceil(
+      Number(count.rows[0].count) / ITEMS_PER_PAGE_CUSTOMERS,
+    );
+    return totalPages;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch total number of customers.');
+  }
+}
+
+export async function fetchCustomerById(id: string) {
+  noStore();
+  try {
+    const data = await sql<CustomerForm>`
+      SELECT
+        customers.id,
+        customers.name,
+        customers.email,
+        customers.image_url
+      FROM customers
+      WHERE customers.id = ${id};
+    `;
+
+    const customer = data.rows.map((customer) => ({
+      ...customer,
+      // Convert amount from cents to dollars
+      /* amount: customer.amount / 100 */
+    }));
+
+    return customer[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch customer.');
+  }
+}
+
 export async function getUser(email: string) {
   try {
     const user = await sql`SELECT * FROM users WHERE email=${email}`;
     return user.rows[0] as User;
   } catch (error) {
     console.error('Failed to fetch user:', error);
+    throw new Error('Failed to fetch user.');
+  }
+}
+
+export async function fetchUsers() {
+  try {
+    const data = await sql<UsersField>`
+      SELECT
+        id,
+        name,
+        email,
+        img,
+        role
+      FROM users
+      ORDER BY name ASC
+    `;
+
+    return data.rows;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all users.');
+  }
+}
+
+const ITEMS_PER_PAGE_USERS = 6;
+export async function fetchFilteredUsers(query: string, currentPage: number) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE_USERS;
+
+  try {
+    const data = await sql<UsersTableType>`
+      SELECT
+        id,
+        name,
+        email,
+        img,
+        role
+      FROM users
+      WHERE
+        name ILIKE ${`%${query}%`} OR
+        email ILIKE ${`%${query}%`} OR
+        role ILIKE ${`%${query}%`}
+      ORDER BY name ASC
+      LIMIT ${ITEMS_PER_PAGE_USERS} OFFSET ${offset}
+    `;
+
+    return data.rows;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch user table.');
+  }
+}
+
+export async function fetchUsersPages(query: string) {
+  try {
+    const count = await sql`
+      SELECT COUNT(*)
+      FROM users
+      WHERE
+        name ILIKE ${`%${query}%`} OR
+        email ILIKE ${`%${query}%`}
+    `;
+
+    const totalPages = Math.ceil(
+      Number(count.rows[0].count) / ITEMS_PER_PAGE_USERS,
+    );
+    return totalPages;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch total number of users.');
+  }
+}
+
+export async function fetchUserById(id: string) {
+  noStore();
+  try {
+    const data = await sql<User>`
+      SELECT
+        id,
+        name,
+        email,
+        img,
+        role
+      FROM users
+      WHERE id = ${id};
+    `;
+
+    return data.rows[0];
+  } catch (error) {
+    console.error('Database Error:', error);
     throw new Error('Failed to fetch user.');
   }
 }

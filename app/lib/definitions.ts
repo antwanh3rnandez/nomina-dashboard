@@ -7,6 +7,8 @@ export type User = {
   name: string;
   email: string;
   password: string;
+  img: string;
+  role: 'admin' | 'user';
 };
 
 export type Customer = {
@@ -80,9 +82,46 @@ export type CustomerField = {
   name: string;
 };
 
+export type UsersField = {
+  id: string;
+  name: string;
+};
+
 export type InvoiceForm = {
   id: string;
   customer_id: string;
   amount: number;
   status: 'pending' | 'paid';
+};
+
+export type CustomerForm = {
+  id: string;
+  name: string;
+  email: string;
+  image_url: string;
+};
+
+export type UserForm = {
+  id: string;
+  name: string;
+  email: string;
+  img: string;
+  role: 'admin' | 'user';
+  password: string;
+};
+
+export type UsersTableType = {
+  id: string;
+  name: string;
+  email: string;
+  img: string;
+  role: string;
+};
+
+export type FormattedUsersTable = {
+  id: string;
+  name: string;
+  email: string;
+  img: string;
+  role: string;
 };

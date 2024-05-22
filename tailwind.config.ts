@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -17,6 +18,9 @@ const config: Config = {
           500: '#0070F3',
           600: '#2F6FEB',
         },
+        primary: "#FF5D3A",
+        primaryA: "#FFD9D0",
+        primaryAHover: "#FF9981",
       },
     },
     keyframes: {
